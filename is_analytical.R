@@ -120,7 +120,7 @@ table(total_df$y)     # 466 0's & 501 1's
 names(total_df) <- make.names(names(total_df), unique=T)
 
 # Save total_df for posterity
-write.csv(total_df, file="assets/total_df.csv")
+write.csv(total_df, file="assets/total_df.csv", row.names=F)
 
 x <- total_df[ , 4:(ncol(total_df) - 1)]
 y <- total_df$y
@@ -129,17 +129,19 @@ y <- total_df$y
 ########  Functions & Global Variables  ########################################
 ########
 
-# standardize()
-# 
-standardize <- function(x, x_col){
-  x_new <- (x - mean(x_col)) / stdev(x_col)
-  return(x_new)
-}
+###############################################
+#                                             #
+# **** START HERE AFTER LOADING total_df **** #
+#                                             #
+###############################################
+
 
 # check_accuracy()
 # Function takes either the discretized results or the probalities as model
 # outputs; in the case of the latter, it uses a cutoff of 0.50 to determine
 # whether the occupation is analytical or not
+
+# TODO: This should return/print a confusion matrix!!
 check_accuracy <- function(df){
   count<- 0
   i <- 0
@@ -205,7 +207,7 @@ logit_train$yhat <- fitted(logit_model)
 
 # TODO: plot line of best fit
 plot(logit_train$yhat, pch=16)
-lines(logit_train$yhat, col="red", lwd=2)
+#lines(logit_train$yhat, col="red", lwd=2)
 
 # Boundary
 abline(h=0.5, lty=2)
@@ -227,29 +229,35 @@ length(logit_sample)    # Prints 119
 LDA_sample <- createDataPartition(y=total$Analytical.IM, p=(119 / nrow(total)), list=F)
 LDA_train <- total[LDA_sample, ]
 
+
 # Remove LDA_sample from total_df
 total <- total[-LDA_sample, ]
 
 # Check descriptive stats
 summary(LDA_train)
 
+# Check standard deviation for all x's
+# applyabilities_df[, 1] <- sapply(abilities_df[, 1], as.character)
+LDA_train_stdev <- sapply(LDA_train[, 1], )
 
 LDA_train_center <- preProcess(LDA_train[ , 4:(ncol(LDA_train) - 1)], method=c("center", "scale"))
 
 # Transform sample data to Gaussian distribution; DO NOT normalize y
-#LDA_train_center <- scale(LDA_train[ , 4:(ncol(LDA_train) - 1)], center=TRUE, scale=TRUE)
+LDA_train_center <- scale(LDA_train[ , 4:(ncol(LDA_train) - 1)], center=TRUE, scale=TRUE)
+
+# Convert back to dataframe
+# NOTE: This must be done before appending y
+LDA_train_center <- as.data.frame(LDA_train_center)
+
 # Append y back to LDA_train_center
 LDA_train_center$y <- LDA_train$y
 
 # Check descriptive stats
 summary(LDA_train_center)
 
-# Convert back to dataframe
-LDA_train_center <- as.data.frame(LDA_train_center)
-
 # Fit LDA model
 LDA_model <- 
-  lda(LDA_train_y ~ Category.Flexibility + Deductive.Reasoning + Flexibility.of.Closure +
+  lda(y ~ Category.Flexibility + Deductive.Reasoning + Flexibility.of.Closure +
           Fluency.of.Ideas + Inductive.Reasoning + Information.Ordering +
           Mathematical.Reasoning + Memorization + Number.Facility + Oral.Comprehension +
           Oral.Expression + Originality + Perceptual.Speed + Problem.Sensitivity +
@@ -263,7 +271,8 @@ predmodel.train.lda <- predict(LDA_model, data=LDA_train_center)
 LDA_train_center$yhat <- predmodel.train.lda$class
 
 # Take a look at performance measures
-plot(LDA_model)     # TODO: Fix this plot
+# TODO: Fix this plot
+plot(LDA_model)     
 table(predmodel.train.lda$class)
 print(LDA_model)
 
@@ -289,14 +298,14 @@ total <- total[-QDA_sample, ]
 summary(QDA_train)
 
 # Transform sample data to Gaussian distribution; DO NOT normalize y
-QDA_train_center <- scale(QDA_train[ , 4:(ncol(QDA_train) - 1)], center=TRUE, scale=TRUE)
+# QDA_train_center <- scale(QDA_train[ , 4:(ncol(QDA_train) - 1)], center=TRUE, scale=TRUE)
 # Append y back to LDA_train_center
-QDA_train_center$y <- QDA_train$y
+# QDA_train_center$y <- QDA_train$y
 
 # Convert back to dataframe
-QDA_train_center <- as.data.frame(LDA_train_center)
+# QDA_train_center <- as.data.frame(LDA_train_center)
 
-summary(QDA_train_center)
+# summary(QDA_train_center)
 
 # Fit QDA model
 QDA_model <- 
@@ -308,7 +317,7 @@ QDA_model <-
           Visualization + Written.Comprehension + Written.Expression,
           data=QDA_train)
 
-predmodel.train.qda <- predict(QDA_model, newdata=QDA_train_center)
+predmodel.train.qda <- predict(QDA_model, newdata=QDA_train)
 
 # Save labels
 QDA_train_center$yhat <- predmodel.train.qda$class
@@ -318,7 +327,7 @@ table(predmodel.train.qda$class)
 print(QDA_model)
 
 # Check accuracy
-QDA_train_score <- check_accuracy(QDA_train_center)   
+QDA_train_score <- check_accuracy(QDA_train)   
 print(QDA_train_score)      # Prints 0.9416667
 
 
@@ -349,6 +358,9 @@ table(Predicted=predmodel.train.qda$class, y=y)
 
 
 # TODO: Combine test and train data, then plot
+
+# TODO: Print the most/least analytical occupations
+
 
 
 
