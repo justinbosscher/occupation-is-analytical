@@ -9,6 +9,7 @@
 
 # Working Directory
 wd <- paste("/home/optimus/Dev/DS_Projects/is_analytical", sep="")
+
 setwd(wd)
 
 # Load libraries
