@@ -71,7 +71,8 @@ cog_abilities <- abilities_df %>%
 cog_abilities <- subset(cog_abilities, Scale.ID=="LV")
 
 # Drop unnecessary columns from cog_abilities
-cog_abilities <- cog_abilities[ , c("O.NET.SOC.Code", "Element.Name", "Data.Value")]
+cog_abilities <-
+    cog_abilities[ , c("O.NET.SOC.Code", "Element.Name", "Data.Value")]
 
 # Reshape cog_abilities before merge with analytical
 # Note: The period separating words in column headers is replaced with a space
@@ -230,13 +231,19 @@ nrow(qda_train)
 
 # Fit logistic regression model
 logit_model <- 
-    glm(y ~ Category.Flexibility + Deductive.Reasoning + Flexibility.of.Closure +
-            Fluency.of.Ideas + Inductive.Reasoning + Information.Ordering +
-            Mathematical.Reasoning + Memorization + Number.Facility + Oral.Comprehension +
-            Oral.Expression + Originality + Perceptual.Speed + Problem.Sensitivity +
-            Selective.Attention + Spatial.Orientation + Speed.of.Closure + Time.Sharing +
-            Visualization + Written.Comprehension + Written.Expression,
-            family="binomial", data=logit_train)
+    glm(y ~ Category.Flexibility + Deductive.Reasoning +
+            Flexibility.of.Closure + Fluency.of.Ideas + 
+            Inductive.Reasoning + Information.Ordering +
+            Mathematical.Reasoning + Memorization + 
+            Number.Facility + Oral.Comprehension +
+            Oral.Expression + Originality + 
+            Perceptual.Speed + Problem.Sensitivity +
+            Selective.Attention + Spatial.Orientation + 
+            Speed.of.Closure + Time.Sharing +
+            Visualization + Written.Comprehension + 
+            Written.Expression,
+        family="binomial",
+        data=logit_train)
 
 # Turn off scientific notation
 options(scipen=999)
@@ -245,7 +252,8 @@ options(scipen=999)
 logit_train$yhat <- fitted(logit_model)
   
 # Discretize output: not analytical < 0.50 >= analytical
-logit_train$class <- sapply(logit_train$yhat, function(x) discretize_output(x, 0.5))
+logit_train$class <- sapply(logit_train$yhat,
+                            function(x) discretize_output(x, 0.5))
 
 # Check accuracy
 logit_train_score <- check_accuracy(logit_train)
