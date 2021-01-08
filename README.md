@@ -1,7 +1,7 @@
 # Occupation Is Analytical
 
 ## Project Objective
-The purpose of the project is to categorize occupations as either anlytical or not analytical.
+The purpose of the project is to categorize occupations as either analytical or not analytical.
 
 ## Methods
 - Logistic Regression
