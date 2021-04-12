@@ -50,20 +50,20 @@ head(abilities_df)
 head(cognitive_abilities_df)
 
 # Create df containing values measuring importance of analytical thinking
-# work style and SOCs
+# work style and SOCs; Analytical Thinking will be our target vector
 analytical <- subset(work_styles_df, Element.Name=="Analytical Thinking")
 analytical <- analytical[ , c("O.NET.SOC.Code", "Data.Value")]
-n_distinct(abilities_df$O.NET.SOC.Code)       # prints 968
-n_distinct(analytical$O.NET.SOC.Code)         # prints 967
 
-# Filter out the SOC that is not in work_styles_df
-abilities_df <- abilities_df %>%
+# TODO: Run models w/o filtering out these SOC codes
+# Filter out the SOCs that are not in work_styles_df
+abilities_df <- as.data.frame(abilities_df) %>%
     filter(O.NET.SOC.Code %in% work_styles_df$O.NET.SOC.Code)
 
-# Create df containing cognitive abilities and SOC's
+# Create df's containing cognitive abilities and SOC's
 cognitive_abilities_df[, 1] <- sapply(cognitive_abilities_df[, 1], as.character)
 abilities_df[, 1] <- sapply(abilities_df[, 1], as.character)
 
+# Filter out all non-cognitive abilities 
 cog_abilities <- abilities_df %>%
     filter(Element.Name %in% cognitive_abilities_df$Cognitive.Abilities)
 
@@ -74,54 +74,26 @@ cog_abilities <- subset(cog_abilities, Scale.ID=="LV")
 cog_abilities <-
     cog_abilities[ , c("O.NET.SOC.Code", "Element.Name", "Data.Value")]
 
-# Reshape cog_abilities before merge with analytical
+# Pivot cog_abilities so that cog_abilities are columns
 # Note: The period separating words in column headers is replaced with a space
-cog_abilities <- spread(cog_abilities, key=Element.Name, value=Data.Value)
+toString(cog_abilities["Element.Name"])
+
+cog_abilities_pivot <- cog_abilities %>%
+    pivot_wider(names_from=Element.Name, values_from=Data.Value)
+
 
 # Merge analytical with cog_abilities
-total_df <- merge(analytical, cog_abilities, by=c("O.NET.SOC.Code"))
+total_df <- merge(analytical, cog_abilities_pivot, by=c("O.NET.SOC.Code"))
 
-# Rename Data.Value to Analytical.IM
+# Rename Data.Value to Analytical.IM; once discretized, this will be the target
 names(total_df)[2] <- "Analytical.IM"
 
 # Check for missing values
-table(is.na(total_df))
+sum(is.na(total_df))
 
-# Use mean for cutoff value
-cutoff_median <- median(total_df$Analytical.IM)   # 3.854767
-cutoff_mean <- mean(total_df$Analytical.IM)       # 3.88
-
-# is_analytical()
-# Function applies cutoff for categorizing the response variable
-is_analytical <- function(x){
-    if(x < cutoff_mean){
-      return(0)
-    }else{
-      return(1)
-    }
-} # End is_analytical()
-
-# Categorize response variable
-total_df$y <- sapply(total_df$Analytical.IM, function(x) is_analytical(x))
-
+TODO: Delete
 # Convert y to factor
-total_df$y <- as.factor(total_df$y)
-
-# Descriptive stats on this set of abilities
-summary(total_df$Analytical.IM < cutoff_mean)   # 501 F; 466 T
-
-# Visually inspect distribution of data
-analytical.im.histogram <-
-    ggplot(total_df, aes(x=Analytical.IM)) + 
-    geom_histogram(binwidth=.2, color="black", fill="white") +
-    geom_vline(aes(xintercept=mean(Analytical.IM, na.rm=T)),
-               color="red", linetype="dashed", size=1)
-
-analytical.im.histogram
-
-
-# Table of number of 0's and 1's
-table(total_df$y)     # 466 0's & 501 1's
+#total_df$y <- as.factor(total_df$y)
 
 # Replace the space with a period in column headers
 names(total_df) <- make.names(names(total_df), unique=T)
@@ -131,7 +103,7 @@ write.csv(total_df, file="assets/total_df.csv", row.names=F)
 
 
 ########
-########  Data Exploration & Feature Engineering  ##############################
+########  Data Exploration, Feature Engineering, Train/Test Splits  ############
 ########
 
 ###############################################
@@ -143,12 +115,20 @@ write.csv(total_df, file="assets/total_df.csv", row.names=F)
 # If necessary, you can load total_df here
 total_df <- read.csv("assets/total_df.csv", row.names=NULL, header=T)
 
-summ <- stat.desc(total_df)
-summ                           # Variables have different scales
 
 ########
-########  Functions & Global Variables  ########################################
+########  Functions  ###########################################################
 ########
+
+# is_analytical()
+# Function applies cutoff for categorizing the response variable
+is_analytical <- function(x){
+    if(x < cutoff_median){
+      return(0)
+    }else{
+      return(1)
+    }
+} # End is_analytical()
 
 # check_accuracy()
 # Function takes either the discretized results or the probabilities as model
@@ -200,12 +180,14 @@ set.seed(987654)
 
 # 70 / 30 test / train split
 # For L/QDA, n >= 5k
+
+# train / test
 dt <- sample(nrow(total_df), nrow(total_df) * 0.7)
 train <- total_df[dt,]
 test <- total_df[-dt,]
 
-nrow(train)
-nrow(test)
+nrow(train)   #676
+nrow(test)    #291
 
 # Split training data into 3 sets for 3 models
 # Logit model
@@ -217,12 +199,33 @@ train <- train[-dt_log,]
 dt_lda <- sample(nrow(train), nrow(train) * 0.5)
 lda_train <- train[dt_lda,]
 
+# Discretize logit model target data
+# Use median for cutoff value
+lda_median <- median(lda_train$Analytical.IM)
+
 # QDA model
 qda_train <- train[-dt_lda,]
 
-nrow(logit_train)
-nrow(lda_train)
-nrow(qda_train)
+# Discretize logit model target data
+# Use median for cutoff value
+qda_median <- median(qda_train$Analytical.IM)
+
+# Check number of rows
+nrow(logit_train)    #225
+nrow(lda_train)      #225
+nrow(qda_train)      #225
+
+
+########
+########  Explore logit_train Data  ############################################
+########
+
+logit_summ <- summary(logit_train)
+logit_summ
+
+table(logit_train$y)        # 0: 116, 1:109
+                            # fairly balanced; sample size is large enough,
+
 
 
 ########
@@ -230,20 +233,19 @@ nrow(qda_train)
 ########
 
 # Fit logistic regression model
-logit_model <- 
-    glm(y ~ Category.Flexibility + Deductive.Reasoning +
-            Flexibility.of.Closure + Fluency.of.Ideas + 
-            Inductive.Reasoning + Information.Ordering +
-            Mathematical.Reasoning + Memorization + 
-            Number.Facility + Oral.Comprehension +
-            Oral.Expression + Originality + 
-            Perceptual.Speed + Problem.Sensitivity +
-            Selective.Attention + Spatial.Orientation + 
-            Speed.of.Closure + Time.Sharing +
-            Visualization + Written.Comprehension + 
-            Written.Expression,
-        family="binomial",
-        data=logit_train)
+logit_model <- glm(y ~ Category.Flexibility + Deductive.Reasoning +
+                       Flexibility.of.Closure + Fluency.of.Ideas + 
+                       Inductive.Reasoning + Information.Ordering +
+                       Mathematical.Reasoning + Memorization + 
+                       Number.Facility + Oral.Comprehension +
+                       Oral.Expression + Originality + 
+                       Perceptual.Speed + Problem.Sensitivity +
+                       Selective.Attention + Spatial.Orientation + 
+                       Speed.of.Closure + Time.Sharing +
+                       Visualization + Written.Comprehension + 
+                       Written.Expression,
+                  family="binomial",
+                  data=logit_train)
 
 # Turn off scientific notation
 options(scipen=999)
@@ -286,9 +288,13 @@ logit_f1 <- calc_f1(logit_precision, logit_recall)
 logit_f1                                           # Prints 0.8888889
 
 # Take a look at model performance measures
-logit_summary <- summary(logit_model)            # Null deviance: 311.70
-logit_summary                                    # Residual deviance: 130.13
-                                                 # AIC: 174.13
+logit_summary <- summary(logit_model)
+logit_summary
+             
+
+#TODO: Backwards Stepwise Model
+# Remove those independent variables that are not statistically significant
+                                    
 
 # Most / least influential variables
 logit_influence = varImp(logit_model)       # Fluency.of.Ideas is most at 2.81
@@ -379,17 +385,17 @@ lda_model
 
 # Fit QDA model
 qda_model <- qda(y ~ Category.Flexibility + Deductive.Reasoning +
-                   Flexibility.of.Closure + Fluency.of.Ideas + 
-                   Inductive.Reasoning + Information.Ordering +
-                   Mathematical.Reasoning + Memorization + 
-                   Number.Facility + Oral.Comprehension +
-                   Oral.Expression + Originality + 
-                   Perceptual.Speed + Problem.Sensitivity +
-                   Selective.Attention + Spatial.Orientation + 
-                   Speed.of.Closure + Time.Sharing +
-                   Visualization + Written.Comprehension + 
-                   Written.Expression,
-                 data=qda_train)
+                     Flexibility.of.Closure + Fluency.of.Ideas + 
+                     Inductive.Reasoning + Information.Ordering +
+                     Mathematical.Reasoning + Memorization + 
+                     Number.Facility + Oral.Comprehension +
+                     Oral.Expression + Originality + 
+                     Perceptual.Speed + Problem.Sensitivity +
+                     Selective.Attention + Spatial.Orientation + 
+                     Speed.of.Closure + Time.Sharing +
+                     Visualization + Written.Comprehension + 
+                     Written.Expression,
+                data=qda_train)
     
 # Training data predictions
 predmodel.train.qda <- predict(qda_model, newdata=qda_train)
