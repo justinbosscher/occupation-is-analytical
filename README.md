@@ -1,3 +1,5 @@
+![APM](https://img.shields.io/apm/l/is-analytical?style=plastic)
+
 # Occupation Is Analytical
 
 ## Project Objective
