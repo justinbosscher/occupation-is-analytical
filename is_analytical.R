@@ -12,15 +12,15 @@ wd <- paste("~/Dev/DS_Projects/is_analytical")
 setwd(wd)
 
 # Load libraries
-library(pastecs)    # For descriptive stats
+#library(pastecs)    # For descriptive stats
 library(ggplot2)    # For plotting
 library(dplyr)      # For data manipulation
 library(gridExtra)  # For printing/arranging multiple plots
-library(stargazer)  # For saving model summaries as jpeg / html files
+#library(stargazer)  # For saving model summaries as jpeg / html files
 library(tidyr)      # To reshape the data to different format
 library(MASS)       # For linear/quadratic discriminant analysis
-library(klaR)       # For simple LDA plot
-library(scales)     # For tick label precision
+#library(klaR)       # For simple LDA plot
+#library(scales)     # For tick label precision
 
 
 ########
@@ -306,9 +306,6 @@ logit_f1                                           # Prints 0.8669528
 logit_summary <- summary(logit_model)
 logit_summary        # AIC: 195.38
 
-# Plots
-plot(logit_model)
-
 # Plot predicted probabilities against occupations
 logit_gg <- ggplot(logit_train,
                    aes(x=Category.Flexibility + Deductive.Reasoning +
@@ -323,46 +320,49 @@ logit_gg <- ggplot(logit_train,
                          Visualization + Written.Comprehension + 
                          Written.Expression,
                        y=yhat)) + 
-  geom_point(alpha=.5) +
-  stat_smooth(method="glm", se=FALSE, fullrange=TRUE,
-              method.args=list(family=binomial)) + 
-  ggtitle("Logistic Regression Training Probabilities") +
-  xlab("Occupation") +
-  ylab("Probability Occupation Is Analytical")
+              geom_point(alpha=.5) +
+              stat_smooth(method="glm", se=FALSE, fullrange=TRUE,
+                          method.args=list(family=binomial)) + 
+              ggtitle("Logistic Regression Training Probabilities",
+                      subtitle="All Features") +
+              xlab("Occupation") +
+              ylab("Probability Occupation Is Analytical")
 
+png("plots/logit_gg.png")
 logit_gg
-# TODO: Save above plot to file
+# Close device
+dev.off()
 
 # Backwards Stepwise Model
 # Remove those independent variables that are not statistically significant
 # Fit logistic regression model without Oral Expression 0.970660
 logit_model_1 <- glm(y ~ Category.Flexibility + Deductive.Reasoning +
-                     Flexibility.of.Closure + Fluency.of.Ideas + 
-                     Inductive.Reasoning + Information.Ordering +
-                     Mathematical.Reasoning + Memorization + 
-                     Number.Facility + Oral.Comprehension +
-                     Originality + Perceptual.Speed +
-                     Problem.Sensitivity + Selective.Attention +
-                     Spatial.Orientation + Speed.of.Closure +
-                     Time.Sharing + Visualization +
-                     Written.Comprehension + Written.Expression,
-                   family="binomial",
-                   data=logit_train)
+                         Flexibility.of.Closure + Fluency.of.Ideas + 
+                         Inductive.Reasoning + Information.Ordering +
+                         Mathematical.Reasoning + Memorization + 
+                         Number.Facility + Oral.Comprehension +
+                         Originality + Perceptual.Speed +
+                         Problem.Sensitivity + Selective.Attention +
+                         Spatial.Orientation + Speed.of.Closure +
+                         Time.Sharing + Visualization +
+                         Written.Comprehension + Written.Expression,
+                     family="binomial",
+                     data=logit_train)
 
 logit_1_summary <- summary(logit_model_1)
 logit_1_summary      # AIC: 193.38
 
 # Fit logistic regression model without Information Ordering 0.973220
 logit_model_2 <- glm(y ~ Category.Flexibility + Deductive.Reasoning +
-                       Flexibility.of.Closure + Fluency.of.Ideas + 
-                       Inductive.Reasoning + Mathematical.Reasoning +
-                       Memorization + Number.Facility +
-                       Oral.Comprehension + Originality +
-                       Perceptual.Speed + Problem.Sensitivity + 
-                       Selective.Attention + Spatial.Orientation + 
-                       Speed.of.Closure + Time.Sharing + 
-                       Visualization + Written.Comprehension +
-                       Written.Expression,
+                         Flexibility.of.Closure + Fluency.of.Ideas + 
+                         Inductive.Reasoning + Mathematical.Reasoning +
+                         Memorization + Number.Facility +
+                         Oral.Comprehension + Originality +
+                         Perceptual.Speed + Problem.Sensitivity + 
+                         Selective.Attention + Spatial.Orientation + 
+                         Speed.of.Closure + Time.Sharing + 
+                         Visualization + Written.Comprehension +
+                         Written.Expression,
                      family="binomial",
                      data=logit_train)
 
@@ -371,14 +371,14 @@ logit_2_summary      # AIC: 191.38
 
 # Fit logistic regression model without Written Comprehension 0.953401
 logit_model_3 <- glm(y ~ Category.Flexibility + Deductive.Reasoning +
-                       Flexibility.of.Closure + Fluency.of.Ideas + 
-                       Inductive.Reasoning + Mathematical.Reasoning +
-                       Memorization + Number.Facility +
-                       Oral.Comprehension + Originality +
-                       Perceptual.Speed + Problem.Sensitivity + 
-                       Selective.Attention + Spatial.Orientation + 
-                       Speed.of.Closure + Time.Sharing + 
-                       Visualization + Written.Expression,
+                         Flexibility.of.Closure + Fluency.of.Ideas + 
+                         Inductive.Reasoning + Mathematical.Reasoning +
+                         Memorization + Number.Facility +
+                         Oral.Comprehension + Originality +
+                         Perceptual.Speed + Problem.Sensitivity + 
+                         Selective.Attention + Spatial.Orientation + 
+                         Speed.of.Closure + Time.Sharing + 
+                         Visualization + Written.Expression,
                      family="binomial",
                      data=logit_train)
 
@@ -387,14 +387,14 @@ logit_3_summary      # AIC: 189.39
 
 # Fit logistic regression model without Time Sharing 0.905075
 logit_model_4 <- glm(y ~ Category.Flexibility + Deductive.Reasoning +
-                       Flexibility.of.Closure + Fluency.of.Ideas + 
-                       Inductive.Reasoning + Mathematical.Reasoning +
-                       Memorization + Number.Facility +
-                       Oral.Comprehension + Originality +
-                       Perceptual.Speed + Problem.Sensitivity + 
-                       Selective.Attention + Spatial.Orientation + 
-                       Speed.of.Closure + Visualization +
-                       Written.Expression,
+                         Flexibility.of.Closure + Fluency.of.Ideas + 
+                         Inductive.Reasoning + Mathematical.Reasoning +
+                         Memorization + Number.Facility +
+                         Oral.Comprehension + Originality +
+                         Perceptual.Speed + Problem.Sensitivity + 
+                         Selective.Attention + Spatial.Orientation + 
+                         Speed.of.Closure + Visualization +
+                         Written.Expression,
                      family="binomial",
                      data=logit_train)
 
@@ -403,13 +403,13 @@ logit_4_summary     # AIC: 187.4
 
 # Fit logistic regression model without Oral Comprehension 0.914421
 logit_model_5 <- glm(y ~ Category.Flexibility + Deductive.Reasoning +
-                       Flexibility.of.Closure + Fluency.of.Ideas + 
-                       Inductive.Reasoning + Mathematical.Reasoning +
-                       Memorization + Number.Facility +
-                       Originality + Perceptual.Speed + 
-                       Problem.Sensitivity + Selective.Attention + 
-                       Spatial.Orientation + Speed.of.Closure +
-                       Visualization + Written.Expression,
+                         Flexibility.of.Closure + Fluency.of.Ideas + 
+                         Inductive.Reasoning + Mathematical.Reasoning +
+                         Memorization + Number.Facility +
+                         Originality + Perceptual.Speed + 
+                         Problem.Sensitivity + Selective.Attention + 
+                         Spatial.Orientation + Speed.of.Closure +
+                         Visualization + Written.Expression,
                      family="binomial",
                      data=logit_train)
 
@@ -418,13 +418,13 @@ logit_5_summary     # AIC: 185.41
 
 # Fit logistic regression model without Selective Attention 0.8588
 logit_model_6 <- glm(y ~ Category.Flexibility + Deductive.Reasoning +
-                       Flexibility.of.Closure + Fluency.of.Ideas + 
-                       Inductive.Reasoning + Mathematical.Reasoning +
-                       Memorization + Number.Facility +
-                       Originality + Perceptual.Speed + 
-                       Problem.Sensitivity + Spatial.Orientation + 
-                       Speed.of.Closure + Visualization + 
-                       Written.Expression,
+                         Flexibility.of.Closure + Fluency.of.Ideas + 
+                         Inductive.Reasoning + Mathematical.Reasoning +
+                         Memorization + Number.Facility +
+                         Originality + Perceptual.Speed + 
+                         Problem.Sensitivity + Spatial.Orientation + 
+                         Speed.of.Closure + Visualization + 
+                         Written.Expression,
                      family="binomial",
                      data=logit_train)
 
@@ -433,12 +433,12 @@ logit_6_summary   # AIC: 183.45
 
 # Fit logistic regression model without Perceptual Speed: 0.7813
 logit_model_7 <- glm(y ~ Category.Flexibility + Deductive.Reasoning +
-                       Flexibility.of.Closure + Fluency.of.Ideas + 
-                       Inductive.Reasoning + Mathematical.Reasoning +
-                       Memorization + Number.Facility +
-                       Originality + Problem.Sensitivity + 
-                       Spatial.Orientation + Speed.of.Closure +
-                       Visualization + Written.Expression,
+                         Flexibility.of.Closure + Fluency.of.Ideas + 
+                         Inductive.Reasoning + Mathematical.Reasoning +
+                         Memorization + Number.Facility +
+                         Originality + Problem.Sensitivity + 
+                         Spatial.Orientation + Speed.of.Closure +
+                         Visualization + Written.Expression,
                      family="binomial",
                      data=logit_train)
 
@@ -447,12 +447,12 @@ logit_7_summary     # AIC: 181.52
 
 # Fit logistic regression model without Number Facility: 0.7807
 logit_model_8 <- glm(y ~ Category.Flexibility + Deductive.Reasoning +
-                       Flexibility.of.Closure + Fluency.of.Ideas + 
-                       Inductive.Reasoning + Mathematical.Reasoning +
-                       Memorization + Originality +
-                       Problem.Sensitivity + Spatial.Orientation +
-                       Speed.of.Closure + Visualization +
-                       Written.Expression,
+                         Flexibility.of.Closure + Fluency.of.Ideas + 
+                         Inductive.Reasoning + Mathematical.Reasoning +
+                         Memorization + Originality +
+                         Problem.Sensitivity + Spatial.Orientation +
+                         Speed.of.Closure + Visualization +
+                         Written.Expression,
                      family="binomial",
                      data=logit_train)
 
@@ -461,11 +461,11 @@ logit_8_summary     # AIC: 179.6
 
 # Fit logistic regression model without Deductive Reasoning: 0.73569
 logit_model_9 <- glm(y ~ Category.Flexibility + Flexibility.of.Closure + 
-                       Fluency.of.Ideas + Inductive.Reasoning + 
-                       Mathematical.Reasoning + Memorization +
-                       Originality + Problem.Sensitivity + 
-                       Spatial.Orientation + Speed.of.Closure +
-                       Visualization + Written.Expression,
+                         Fluency.of.Ideas + Inductive.Reasoning + 
+                         Mathematical.Reasoning + Memorization +
+                         Originality + Problem.Sensitivity + 
+                         Spatial.Orientation + Speed.of.Closure +
+                         Visualization + Written.Expression,
                      family="binomial",
                      data=logit_train)
 
@@ -474,35 +474,89 @@ logit_9_summary      # AIC: 177.71
 
 # Fit logistic regression model without Memorization: 0.59519
 logit_model_10 <- glm(y ~ Category.Flexibility + Flexibility.of.Closure +
-                        Fluency.of.Ideas + Inductive.Reasoning +
-                        Mathematical.Reasoning + Originality + 
-                        Problem.Sensitivity + Spatial.Orientation + 
-                        Speed.of.Closure + Visualization + 
-                        Written.Expression,
+                          Fluency.of.Ideas + Inductive.Reasoning +
+                          Mathematical.Reasoning + Originality + 
+                          Problem.Sensitivity + Spatial.Orientation + 
+                          Speed.of.Closure + Visualization + 
+                          Written.Expression,
                      family="binomial",
                      data=logit_train)
 
 logit_10_summary <- summary(logit_model_10)
 logit_10_summary     # AIC: 176
 
+# Logit Model 11 ###############################################################
 # Fit logistic regression model without Category Flexibility: 0.48813
 logit_model_11 <- glm(y ~ Flexibility.of.Closure + Fluency.of.Ideas + 
-                        Inductive.Reasoning + Mathematical.Reasoning + 
-                        Originality + Problem.Sensitivity + 
-                        Spatial.Orientation + Speed.of.Closure + 
-                        Visualization + Written.Expression,
+                          Inductive.Reasoning + Mathematical.Reasoning + 
+                          Originality + Problem.Sensitivity + 
+                          Spatial.Orientation + Speed.of.Closure + 
+                          Visualization + Written.Expression,
                       family="binomial",
                       data=logit_train)
 
 logit_11_summary <- summary(logit_model_11)
 logit_11_summary    # AIC: 174.47
 
+# Save output
+logit_train$yhat_11 <- fitted(logit_model_11)
+
+# Plot distribution of the output
+logit_train_yhat_11_hist <-
+                ggplot(logit_train, aes(x=yhat_11), title="Distribution") +
+                  theme_classic() +
+                  geom_histogram(color="black", fill="#737CA1", bins=70) +
+                  labs(title="Distribution of Predicted Probabilities",
+                       subtitle="Logistic Regression Training Data") +
+                  labs(x="Occupation", y="Count") +
+                  geom_vline(aes(xintercept=mean(yhat_11),
+                                 color="Mean"),
+                                 linetype="dashed", size=0.75) +
+                  geom_vline(aes(xintercept=median(yhat_11),
+                                 color="Median"), 
+                                 linetype="dotdash", size=0.75) +
+                  scale_color_manual(name="Statistics",
+                                     values=c(Mean="#6CC417", Median="#F88017"))
+
+logit_train_yhat_11_hist
+
+# Discretize output for class
+# Use not analytical < 0.5 >= analytical
+logit_train_class_cutoff_11 <- 0.5
+logit_train$class_11 <- as.integer(sapply(logit_train$yhat_11, function(x)
+  is_analytical(x, logit_train_class_cutoff_11)))
+
+# Check accuracy
+logit_train_score_11 <- check_accuracy(logit_train$y, logit_train$class_11)
+logit_train_score_11                                  # Prints 0.8666667
+
+# Create confusion matrix
+logit_cm_11 <- table(logit_train$y, logit_train$class_11)
+logit_cm_11
+
+# Calculate true positive, false positive, and false negative
+logit_tp_11 <- logit_cm_11[2, 2]
+logit_fp_11 <- logit_cm_11[1, 2]
+logit_fn_11 <- logit_cm_11[2, 1]
+
+# Calculate precision
+logit_precision_11 <- logit_tp_11 / (logit_tp_11 + logit_fp_11)
+logit_precision_11                                    # Prints 0.8632479
+
+# Calculate recall
+logit_recall_11 <- logit_tp_11 / (logit_tp_11 + logit_fn_11)
+logit_recall_11                                       # Prints 0.8782609
+
+# Calculate F1
+logit_f1_11 <- calc_f1(logit_precision_11, logit_recall_11)
+logit_f1_11                                           # Prints 0.8706897
+
 # Fit logistic regression model without Problem Sensitivity: 0.3754
 logit_model_12 <- glm(y ~ Flexibility.of.Closure + Fluency.of.Ideas + 
-                        Mathematical.Reasoning + Originality + 
-                        Problem.Sensitivity + Spatial.Orientation + 
-                        Speed.of.Closure + Visualization + 
-                        Written.Expression,
+                          Mathematical.Reasoning + Originality + 
+                          Problem.Sensitivity + Spatial.Orientation + 
+                          Speed.of.Closure + Visualization + 
+                          Written.Expression,
                       family="binomial",
                       data=logit_train)
 
@@ -511,9 +565,9 @@ logit_12_summary       # AIC: 181.54
 
 # Fit logistic regression model without Fluency of Ideas: 0.558886
 logit_model_13 <- glm(y ~ Flexibility.of.Closure + Mathematical.Reasoning + 
-                        Originality + Problem.Sensitivity + 
-                        Spatial.Orientation + Speed.of.Closure + 
-                        Visualization + Written.Expression,
+                          Originality + Problem.Sensitivity + 
+                          Spatial.Orientation + Speed.of.Closure + 
+                          Visualization + Written.Expression,
                       family="binomial",
                       data=logit_train)
 
@@ -522,9 +576,9 @@ logit_13_summary       # AIC: 179.89
 
 # Fit logistic regression model without Originality: 0.811040
 logit_model_14 <- glm(y ~ Flexibility.of.Closure + Mathematical.Reasoning + 
-                        Problem.Sensitivity + Spatial.Orientation + 
-                        Speed.of.Closure + Visualization + 
-                        Written.Expression,
+                          Problem.Sensitivity + Spatial.Orientation + 
+                          Speed.of.Closure + Visualization + 
+                          Written.Expression,
                       family="binomial",
                       data=logit_train)
 
@@ -533,18 +587,19 @@ logit_14_summary      # AIC: 177.94
 
 # Fit logistic regression model without Speed of Closure: 0.33815
 logit_model_15 <- glm(y ~ Flexibility.of.Closure + Mathematical.Reasoning + 
-                        Problem.Sensitivity + Spatial.Orientation + 
-                        Visualization + Written.Expression,
+                          Problem.Sensitivity + Spatial.Orientation + 
+                          Visualization + Written.Expression,
                       family="binomial",
                       data=logit_train)
 
 logit_15_summary <- summary(logit_model_15)
 logit_15_summary      # AIC: 176.88
 
+# Logit Model 16 ###############################################################
 # Fit logistic regression model without Speed of Closure: 0.33815
 logit_model_16 <- glm(y ~ Mathematical.Reasoning + Problem.Sensitivity + 
-                        Spatial.Orientation + Visualization + 
-                        Written.Expression,
+                          Spatial.Orientation + Visualization + 
+                          Written.Expression,
                       family="binomial",
                       data=logit_train)
 
@@ -552,50 +607,25 @@ logit_16_summary <- summary(logit_model_16)# AIC: 177.16
 logit_16_summary      # All features are significant at or greater than 95%
                       # AIC: 177.16
 
-# Fit logistic regression model without Visualization: 0.01784
-logit_model_17 <- glm(y ~ Mathematical.Reasoning + Problem.Sensitivity + 
-                        Spatial.Orientation + Written.Expression,
-                      family="binomial",
-                      data=logit_train)
-
-logit_17_summary <- summary(logit_model_17)
-logit_17_summary      # All features are significant at or greater than 95%
-                      # AIC: 181.01
-
-# Fit logistic regression model without Spatial Orientation: 0.041985
-logit_model_18 <- glm(y ~ Mathematical.Reasoning + Problem.Sensitivity + 
-                        Written.Expression,
-                      family="binomial",
-                      data=logit_train)
-
-logit_18_summary <- summary(logit_model_18)
-logit_18_summary      # All features are significant at or greater than 99%
-                      # AIC: 183.29
-
-# Compare logistic regression models
-# Model 18 includes features with significance >= 99% level; AIC: 183.29
-# Model 16 includes features with significance >= 95% level; AIC: 177.16
-# Model 11 includes 6 features which are not significant; AIC: 174.47
-
 # Save output
 logit_train$yhat_16 <- fitted(logit_model_16)
 
 # Plot distribution of the output
 logit_train_yhat_16_hist <-
-  ggplot(logit_train, aes(x=yhat_16), title="Distribution") +
-  theme_classic() +
-  geom_histogram(color="black", fill="#737CA1", bins=70) +
-  labs(title="Distribution of Predicted Probabilities",
-       subtitle="Logistic Regression Training Data") +
-  labs(x="Occupation", y="Count") +
-  geom_vline(aes(xintercept=mean(yhat_16),
-                 color="Mean"),
-             linetype="dashed", size=0.75) +
-  geom_vline(aes(xintercept=median(yhat_16),
-                 color="Median"), 
-             linetype="dotdash", size=0.75) +
-  scale_color_manual(name="Statistics",
-                     values=c(Mean="#6CC417", Median="#F88017"))
+                  ggplot(logit_train, aes(x=yhat_16), title="Distribution") +
+                  theme_classic() +
+                  geom_histogram(color="black", fill="#737CA1", bins=70) +
+                  labs(title="Distribution of Predicted Probabilities",
+                       subtitle="Logistic Regression Training Data") +
+                  labs(x="Occupation", y="Count") +
+                  geom_vline(aes(xintercept=mean(yhat_16),
+                                 color="Mean"),
+                             linetype="dashed", size=0.75) +
+                  geom_vline(aes(xintercept=median(yhat_16),
+                                 color="Median"), 
+                             linetype="dotdash", size=0.75) +
+                  scale_color_manual(name="Statistics",
+                                     values=c(Mean="#6CC417", Median="#F88017"))
 
 logit_train_yhat_16_hist
 
@@ -603,7 +633,7 @@ logit_train_yhat_16_hist
 # Use not analytical < 0.5 >= analytical
 logit_train_class_cutoff_16 <- 0.5
 logit_train$class_16 <- as.integer(sapply(logit_train$yhat_16, function(x)
-  is_analytical(x, logit_train_class_cutoff_16)))
+                                   is_analytical(x, logit_train_class_cutoff_16)))
 
 # Check accuracy
 logit_train_score_16 <- check_accuracy(logit_train$y, logit_train$class_16)
@@ -628,44 +658,235 @@ logit_recall_16                                       # Prints 0.8608696
 
 # Calculate F1
 logit_f1_16 <- calc_f1(logit_precision_16, logit_recall_16)
-logit_f1_16                                           # Prints 0.389831
-################################################################################
-
-# Plots
-plot(logit_model_16)
+logit_f1_16                                           # Prints 0.8389831
 
 # Plot predicted probabilities against occupations
 logit_16_gg <- ggplot(logit_train,
-                   aes(x=Category.Flexibility + Deductive.Reasoning +
-                         Flexibility.of.Closure + Fluency.of.Ideas + 
-                         Inductive.Reasoning + Information.Ordering +
-                         Mathematical.Reasoning + Memorization + 
-                         Number.Facility + Oral.Comprehension +
-                         Oral.Expression + Originality + 
-                         Perceptual.Speed + Problem.Sensitivity +
-                         Selective.Attention + Spatial.Orientation + 
-                         Speed.of.Closure + Time.Sharing +
-                         Visualization + Written.Comprehension + 
-                         Written.Expression,
-                       y=yhat)) + 
-                   geom_point(alpha=.5) +
-                   stat_smooth(method="glm", se=FALSE, fullrange=TRUE,
-                               method.args=list(family=binomial)) + 
-                   ggtitle("Logistic Regression Training Probabilities: Model 16") +
-                   xlab("Occupation") +
-                   ylab("Probability Occupation Is Analytical")
+                      aes(x=Mathematical.Reasoning + Problem.Sensitivity + 
+                            Spatial.Orientation + Visualization + 
+                            Written.Expression,
+                          y=yhat)) + 
+                      geom_point(alpha=.5) +
+                      stat_smooth(method="glm", se=FALSE, fullrange=TRUE,
+                                  method.args=list(family=binomial)) + 
+                      ggtitle("Logistic Regression Training Probabilities: Model 16") +
+                      xlab("Occupation") +
+                      ylab("Probability Occupation Is Analytical")
 
-logit_gg
-# TODO: Save above plot to file
+# Save plot
+png("plots/logit_16_gg.png")
+logit_16_gg
+dev.off()
 
+# Logit Model 17 ###############################################################
+# Fit logistic regression model without Visualization: 0.01784
+logit_model_17 <- glm(y ~ Mathematical.Reasoning + Problem.Sensitivity + 
+                          Spatial.Orientation + Written.Expression,
+                      family="binomial",
+                      data=logit_train)
 
+logit_17_summary <- summary(logit_model_17)
+logit_17_summary      # All features are significant at or greater than 95%
+                      # AIC: 181.01
 
+# Save output
+logit_train$yhat_17 <- fitted(logit_model_17)
 
+# Plot distribution of the output
+logit_train_yhat_17_hist <-
+                  ggplot(logit_train, aes(x=yhat_17), title="Distribution") +
+                  theme_classic() +
+                  geom_histogram(color="black", fill="#737CA1", bins=70) +
+                  labs(title="Distribution of Predicted Probabilities",
+                       subtitle="Logistic Regression Training Data") +
+                  labs(x="Occupation", y="Count") +
+                  geom_vline(aes(xintercept=mean(yhat_17),
+                                 color="Mean"),
+                             linetype="dashed", size=0.75) +
+                  geom_vline(aes(xintercept=median(yhat_17),
+                                 color="Median"), 
+                             linetype="dotdash", size=0.75) +
+                  scale_color_manual(name="Statistics",
+                                     values=c(Mean="#6CC417", Median="#F88017"))
+
+logit_train_yhat_17_hist
+
+# Discretize output for class
+# Use not analytical < 0.5 >= analytical
+logit_train_class_cutoff_17 <- 0.5
+logit_train$class_17 <- as.integer(sapply(logit_train$yhat_17, function(x)
+                                   is_analytical(x, logit_train_class_cutoff_17)))
+
+# Check accuracy
+logit_train_score_17 <- check_accuracy(logit_train$y, logit_train$class_17)
+logit_train_score_17                                  # Prints 0.8311111
+
+# Create confusion matrix
+logit_cm_17 <- table(logit_train$y, logit_train$class_17)
+logit_cm_17
+
+# Calculate true positive, false positive, and false negative
+logit_tp_17 <- logit_cm_17[2, 2]
+logit_fp_17 <- logit_cm_17[1, 2]
+logit_fn_17 <- logit_cm_17[2, 1]
+
+# Calculate precision
+logit_precision_17 <- logit_tp_17 / (logit_tp_17 + logit_fp_17)
+logit_precision_17                                    # Prints 0.8181818
+
+# Calculate recall
+logit_recall_17 <- logit_tp_17 / (logit_tp_17 + logit_fn_17)
+logit_recall_17                                       # Prints 0.8608696
+
+# Calculate F1
+logit_f1_17 <- calc_f1(logit_precision_17, logit_recall_17)
+logit_f1_17                                           # Prints 0.8389831
+
+# Plot predicted probabilities against occupations
+logit_17_gg <- ggplot(logit_train,
+                      aes(x=Category.Flexibility + Deductive.Reasoning +
+                            Flexibility.of.Closure + Fluency.of.Ideas + 
+                            Inductive.Reasoning + Information.Ordering +
+                            Mathematical.Reasoning + Memorization + 
+                            Number.Facility + Oral.Comprehension +
+                            Oral.Expression + Originality + 
+                            Perceptual.Speed + Problem.Sensitivity +
+                            Selective.Attention + Spatial.Orientation + 
+                            Speed.of.Closure + Time.Sharing +
+                            Visualization + Written.Comprehension + 
+                            Written.Expression,
+                          y=yhat)) + 
+                      geom_point(alpha=.5) +
+                      stat_smooth(method="glm", se=FALSE, fullrange=TRUE,
+                                  method.args=list(family=binomial)) + 
+                      ggtitle("Logistic Regression Training Probabilities: Model 17") +
+                      xlab("Occupation") +
+                      ylab("Probability Occupation Is Analytical")
+
+# Save plot
+png("plots/logit_17_gg.png")
+logit_17_gg
+dev.off()
+
+# Logit Model 18 ###############################################################
+# Fit logistic regression model without Spatial Orientation: 0.041985
+logit_model_18 <- glm(y ~ Mathematical.Reasoning + Problem.Sensitivity + 
+                          Written.Expression,
+                      family="binomial",
+                      data=logit_train)
+
+logit_18_summary <- summary(logit_model_18)
+logit_18_summary      # All features are significant at or greater than 99%
+                      # AIC: 183.29
+
+# Save output
+logit_train$yhat_18 <- fitted(logit_model_18)
+
+# Plot distribution of the output
+logit_train_yhat_18_hist <-
+              ggplot(logit_train, aes(x=yhat_18), title="Distribution") +
+                theme_classic() +
+                geom_histogram(color="black", fill="#737CA1", bins=70) +
+                labs(title="Distribution of Predicted Probabilities",
+                     subtitle="Logistic Regression Training Data") +
+                labs(x="Occupation", y="Count") +
+                geom_vline(aes(xintercept=mean(yhat_18),
+                               color="Mean"),
+                               linetype="dashed", size=0.75) +
+                geom_vline(aes(xintercept=median(yhat_16),
+                               color="Median"), 
+                               linetype="dotdash", size=0.75) +
+                scale_color_manual(name="Statistics",
+                                   values=c(Mean="#6CC417", Median="#F88017"))
+
+logit_train_yhat_18_hist
+
+# Discretize output for class
+# Use not analytical < 0.5 >= analytical
+logit_train_class_cutoff_18 <- 0.5
+logit_train$class_18 <- as.integer(sapply(logit_train$yhat_18, function(x)
+                                   is_analytical(x, logit_train_class_cutoff_18)))
+
+# Check accuracy
+logit_train_score_18 <- check_accuracy(logit_train$y, logit_train$class_18)
+logit_train_score_18                                  # Prints 0.84
+
+# Create confusion matrix
+logit_cm_18 <- table(logit_train$y, logit_train$class_18)
+logit_cm_18
+
+# Calculate true positive, false positive, and false negative
+logit_tp_18 <- logit_cm_18[2, 2]
+logit_fp_18 <- logit_cm_18[1, 2]
+logit_fn_18 <- logit_cm_18[2, 1]
+
+# Calculate precision
+logit_precision_18 <- logit_tp_18 / (logit_tp_18 + logit_fp_18)
+logit_precision_18                                    # Prints 0.8264463
+
+# Calculate recall
+logit_recall_18 <- logit_tp_18 / (logit_tp_18 + logit_fn_18)
+logit_recall_18                                       # Prints 0.8695652
+
+# Calculate F1
+logit_f1_18 <- calc_f1(logit_precision_16, logit_recall_18)
+logit_f1_18                                           # Prints 0.8430913
+
+# Compare logistic regression models ###########################################
+
+# Save model performance metrics for top 3 models as df
+logit_model_names <- c("Logit 16", "Logit 17", "Logit 18")
+
+logit_aics <- c(logit_16_summary$aic,
+                logit_17_summary$aic,
+                logit_18_summary$aic)
+
+logit_accuracies <- c(logit_train_score_16,
+                      logit_train_score_17,
+                      logit_train_score_18)
+
+logit_f1s <- c(logit_f1_16,
+               logit_f1_17,
+               logit_f1_18)
+
+logit_precisions <- c(logit_precision_16,
+                      logit_precision_17,
+                      logit_precision_18)
+
+logit_recalls <- c(logit_recall_16,
+                   logit_recall_17,
+                   logit_recall_18)
+
+metrics_df <- data.frame(logit_model_names,
+                         logit_accuracies,
+                         logit_aics,
+                         logit_f1s,
+                         logit_precisions,
+                         logit_recalls)
+
+metrics_col_names <- c("Model", "Accuracy", "AIC", "F1", "Precision", "Recall")
+colnames(metrics_df) <- metrics_col_names
+
+save(metrics_df, file="logit_metrics.png")
+metrics_df
+
+# Save model metrics as png
+png("plots/metrics.png", height=40*nrow(metrics_df),
+                         width=80*ncol(metrics_df))
+grid.table(metrics_df)
+dev.off()
 
 
 ########
 ########  Linear Discriminant Analysis  ########################################
 ########
+
+# LDA assumes Gaussian class-conditional distributions and variance-covariance
+# homogeneity of classes
+
+# Decision boundary is set of points for which the probability of being
+# analytical is equal to the probability of not being analytical (log-odds are
+# zero)
 
 # Discretize lda model target data
 # Use median to classify
@@ -700,7 +921,7 @@ predmodel_train_lda <- predict(lda_model, data=lda_train)
 lda_train$class <- predmodel_train_lda$class
 
 # Check accuracy
-lda_train_score <- check_accuracy(lda_train)   
+lda_train_score <- check_accuracy(lda_train, lda_train$class)   
 lda_train_score                                  # Prints 0.88444444
 
 # Create confusion matrix
@@ -726,6 +947,11 @@ lda_f1 <- calc_f1(lda_precision, lda_recall)
 lda_f1                                           # Prints 0.896
 
 lda_model
+
+# Add LDA metrics to metrics df
+LDA_metrics <- c("LDA", lda_train_score, "n/a", lda_f1, lda_precision, lda_recall)
+metrics_df <- rbind(LDA_metrics)
+
 
 #lda_plot <- as(cbind(lda_train$y, lda_model$LD1)
 ggplot(lda_plot, aes(LD1))
