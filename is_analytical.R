@@ -12,15 +12,14 @@ wd <- paste("~/Dev/DS_Projects/is_analytical")
 setwd(wd)
 
 # Load libraries
-#library(pastecs)    # For descriptive stats
 library(ggplot2)    # For plotting
 library(dplyr)      # For data manipulation
+library(corrplot)   # For correlation plot
+library(ppcor)      # For partial correlations
+library(mctest)     # For multicollinearity tests
 library(gridExtra)  # For printing/arranging multiple plots
-#library(stargazer)  # For saving model summaries as jpeg / html files
 library(tidyr)      # To reshape the data to different format
 library(MASS)       # For linear/quadratic discriminant analysis
-#library(klaR)       # For simple LDA plot
-#library(scales)     # For tick label precision
 
 
 ########
@@ -306,31 +305,23 @@ logit_f1                                           # Prints 0.8669528
 logit_summary <- summary(logit_model)
 logit_summary        # AIC: 195.38
 
-# Plot predicted probabilities against occupations
-logit_gg <- ggplot(logit_train,
-                   aes(x=Category.Flexibility + Deductive.Reasoning +
-                         Flexibility.of.Closure + Fluency.of.Ideas + 
-                         Inductive.Reasoning + Information.Ordering +
-                         Mathematical.Reasoning + Memorization + 
-                         Number.Facility + Oral.Comprehension +
-                         Oral.Expression + Originality + 
-                         Perceptual.Speed + Problem.Sensitivity +
-                         Selective.Attention + Spatial.Orientation + 
-                         Speed.of.Closure + Time.Sharing +
-                         Visualization + Written.Comprehension + 
-                         Written.Expression,
-                       y=yhat)) + 
-              geom_point(alpha=.5) +
-              stat_smooth(method="glm", se=FALSE, fullrange=TRUE,
-                          method.args=list(family=binomial)) + 
-              ggtitle("Logistic Regression Training Probabilities",
-                      subtitle="All Features") +
-              xlab("Occupation") +
-              ylab("Probability Occupation Is Analytical")
+# Plot predicted probabilities v index
+logit_plot_df <- data.frame(yhat=logit_train$yhat, y=logit_train$y)
+logit_plot_df <- logit_plot_df[order(logit_plot_df$yhat, decreasing=FALSE),]
+logit_plot_df$rank <- 1:nrow(logit_plot_df)
+logit_plot_df$y <- factor(logit_plot_df$y)
 
+logit_gg <- ggplot(logit_plot_df, aes(x=rank, y=yhat)) +
+              geom_point(aes(color=y), alpha=1, size=1.5) +
+              ggtitle("Logistic Regression Training Probabilities: All Features",
+                      subtitle="Class 0 = Not Analytical\nClass 1 = Analytical") +
+              xlab("Index") +
+              ylab("Predicted Probability") +
+              labs(color="Actual\nClass")
+
+# Save plot
 png("plots/logit_gg.png")
 logit_gg
-# Close device
 dev.off()
 
 # Backwards Stepwise Model
@@ -660,23 +651,25 @@ logit_recall_16                                       # Prints 0.8608696
 logit_f1_16 <- calc_f1(logit_precision_16, logit_recall_16)
 logit_f1_16                                           # Prints 0.8389831
 
-# Plot predicted probabilities against occupations
-logit_16_gg <- ggplot(logit_train,
-                      aes(x=Mathematical.Reasoning + Problem.Sensitivity + 
-                            Spatial.Orientation + Visualization + 
-                            Written.Expression,
-                          y=yhat)) + 
-                      geom_point(alpha=.5) +
-                      stat_smooth(method="glm", se=FALSE, fullrange=TRUE,
-                                  method.args=list(family=binomial)) + 
-                      ggtitle("Logistic Regression Training Probabilities: Model 16") +
-                      xlab("Occupation") +
-                      ylab("Probability Occupation Is Analytical")
+# Plot predicted probabilities v index
+logit_16_plot_df <- data.frame(yhat=logit_train$yhat_16, y=logit_train$y)
+logit_16_plot_df <- logit_16_plot_df[order(logit_16_plot_df$yhat, decreasing=FALSE),]
+logit_16_plot_df$rank <- 1:nrow(logit_16_plot_df)
+logit_16_plot_df$y <- factor(logit_16_plot_df$y)
+
+logit_16_gg <- ggplot(logit_16_plot_df, aes(x=rank, y=yhat)) +
+                 geom_point(aes(color=y), alpha=1, size=1.5) +
+                 ggtitle("Logistic Regression Training Probabilities: Model 16",
+                         subtitle="Class 0 = Not Analytical\nClass 1 = Analytical") +
+                 xlab("Index") +
+                 ylab("Predicted Probability") +
+                 labs(color="Actual\nClass")
 
 # Save plot
 png("plots/logit_16_gg.png")
 logit_16_gg
 dev.off()
+
 
 # Logit Model 17 ###############################################################
 # Fit logistic regression model without Visualization: 0.01784
@@ -742,26 +735,19 @@ logit_recall_17                                       # Prints 0.8608696
 logit_f1_17 <- calc_f1(logit_precision_17, logit_recall_17)
 logit_f1_17                                           # Prints 0.8389831
 
-# Plot predicted probabilities against occupations
-logit_17_gg <- ggplot(logit_train,
-                      aes(x=Category.Flexibility + Deductive.Reasoning +
-                            Flexibility.of.Closure + Fluency.of.Ideas + 
-                            Inductive.Reasoning + Information.Ordering +
-                            Mathematical.Reasoning + Memorization + 
-                            Number.Facility + Oral.Comprehension +
-                            Oral.Expression + Originality + 
-                            Perceptual.Speed + Problem.Sensitivity +
-                            Selective.Attention + Spatial.Orientation + 
-                            Speed.of.Closure + Time.Sharing +
-                            Visualization + Written.Comprehension + 
-                            Written.Expression,
-                          y=yhat)) + 
-                      geom_point(alpha=.5) +
-                      stat_smooth(method="glm", se=FALSE, fullrange=TRUE,
-                                  method.args=list(family=binomial)) + 
-                      ggtitle("Logistic Regression Training Probabilities: Model 17") +
-                      xlab("Occupation") +
-                      ylab("Probability Occupation Is Analytical")
+# Plot predicted probabilities v index
+logit_17_plot_df <- data.frame(yhat=logit_train$yhat_17, y=logit_train$y)
+logit_17_plot_df <- logit_17_plot_df[order(logit_17_plot_df$yhat, decreasing=FALSE),]
+logit_17_plot_df$rank <- 1:nrow(logit_17_plot_df)
+logit_17_plot_df$y <- factor(logit_17_plot_df$y)
+
+logit_17_gg <- ggplot(logit_17_plot_df, aes(x=rank, y=yhat)) +
+                 geom_point(aes(color=y), alpha=1, size=1.5) +
+                 ggtitle("Logistic Regression Training Probabilities: Model 17",
+                         subtitle="Class 0 = Not Analytical\nClass 1 = Analytical") +
+                 xlab("Index") +
+                 ylab("Predicted Probability") +
+                 labs(color="Actual\nClass")
 
 # Save plot
 png("plots/logit_17_gg.png")
@@ -818,6 +804,7 @@ logit_cm_18
 # Calculate true positive, false positive, and false negative
 logit_tp_18 <- logit_cm_18[2, 2]
 logit_fp_18 <- logit_cm_18[1, 2]
+
 logit_fn_18 <- logit_cm_18[2, 1]
 
 # Calculate precision
@@ -831,6 +818,25 @@ logit_recall_18                                       # Prints 0.8695652
 # Calculate F1
 logit_f1_18 <- calc_f1(logit_precision_16, logit_recall_18)
 logit_f1_18                                           # Prints 0.8430913
+
+# Plot predicted probabilities v index
+logit_18_plot_df <- data.frame(yhat=logit_train$yhat_18, y=logit_train$y)
+logit_18_plot_df <- logit_18_plot_df[order(logit_18_plot_df$yhat, decreasing=FALSE),]
+logit_18_plot_df$rank <- 1:nrow(logit_18_plot_df)
+logit_18_plot_df$y <- factor(logit_18_plot_df$y)
+
+logit_18_gg <- ggplot(logit_18_plot_df, aes(x=rank, y=yhat)) +
+                 geom_point(aes(color=y), alpha=1, size=1.5) +
+                 ggtitle("Logistic Regression Training Probabilities: Model 18",
+                         subtitle="Class 0 = Not Analytical\nClass 1 = Analytical") +
+                 xlab("Index") +
+                 ylab("Predicted Probability") +
+                 labs(color="Actual\nClass")
+
+# Save plot
+png("plots/logit_18_gg.png")
+logit_18_gg
+dev.off()
 
 # Compare logistic regression models ###########################################
 
@@ -857,24 +863,67 @@ logit_recalls <- c(logit_recall_16,
                    logit_recall_17,
                    logit_recall_18)
 
-metrics_df <- data.frame(logit_model_names,
-                         logit_accuracies,
-                         logit_aics,
-                         logit_f1s,
-                         logit_precisions,
-                         logit_recalls)
+logit_metrics_df <- data.frame(logit_model_names,
+                               logit_accuracies,
+                               logit_aics,
+                               logit_f1s,
+                               logit_precisions,
+                               logit_recalls)
 
 metrics_col_names <- c("Model", "Accuracy", "AIC", "F1", "Precision", "Recall")
-colnames(metrics_df) <- metrics_col_names
+colnames(logit_metrics_df) <- metrics_col_names
 
-save(metrics_df, file="logit_metrics.png")
-metrics_df
+logit_metrics_df
 
 # Save model metrics as png
-png("plots/metrics.png", height=40*nrow(metrics_df),
+png("plots/logit_metrics.png", height=40*nrow(metrics_df),
                          width=80*ncol(metrics_df))
-grid.table(metrics_df)
+grid.table(logit_metrics_df)
 dev.off()
+
+# Tests for multicollinearity
+
+# Create df of variables
+vars_16 <- as.data.frame(cbind(logit_train$Mathematical.Reasoning,
+                               logit_train$Problem.Sensitivity,
+                               logit_train$Spatial.Orientation,
+                               logit_train$Visualization))
+
+vars_16_names <- c("Mathematical\nReasoning", "Problem\nSensitivity",
+                   "Spatial\nOrientation", "Visualization")
+names(vars_16) <- vars_16_names
+
+cor_16 = cor(vars_16)
+logit_corr_plot <- corrplot.mixed(cor_16, number.cex=1.1, tl.cex=0.9, mar=c(0,0,1,0))
+
+# Save correlation plot
+png("plots/logit_corr_plot.png")
+logit_corr_plot
+dev.off()
+
+# Logit Model 16
+omcdiag(logit_model_16)
+imcdiag(logit_model_16)
+
+pcor(vars_16, method="pearson")
+
+# Logit Model 17
+omcdiag(logit_model_17)
+imcdiag(logit_model_17)
+
+# Drop Visualization
+vars_17 <- drop(vars_16$Visualization)
+
+pcor(vars_17, method="Pearson")
+
+# Logit Model 18
+omcdiag(logit_model_18)
+imcdiag(logit_model_18)
+
+# Drop Spatial Orientation
+vars_18 <- drop(vars_17$Spatial.Orientation)
+
+pcor(vars_18, method="Pearson")
 
 
 ########
@@ -892,13 +941,10 @@ dev.off()
 # Use median to classify
 lda_train_y_cutoff <- median(logit_train$Analytical.IM)
 
-lda_train$y <- sapply(lda_train$Analytical.IM, 
-                        function(x) is_analytical(x, lda_train_y_cutoff))
+lda_train$y <- as.integer(sapply(lda_train$Analytical.IM, 
+                        function(x) is_analytical(x, lda_train_y_cutoff)))
 
 table(lda_train$y)        # 0: 100, 1: 125
-
-# TODO: DOES LDA NEED TO BE BALANCED ??
-# fairly balanced; sample size is large enough
 
 # Fit LDA model
 lda_model <- lda(y ~ Category.Flexibility + Deductive.Reasoning +
@@ -921,7 +967,7 @@ predmodel_train_lda <- predict(lda_model, data=lda_train)
 lda_train$class <- predmodel_train_lda$class
 
 # Check accuracy
-lda_train_score <- check_accuracy(lda_train, lda_train$class)   
+lda_train_score <- check_accuracy(lda_train$y, lda_train$class)   
 lda_train_score                                  # Prints 0.88444444
 
 # Create confusion matrix
@@ -948,13 +994,62 @@ lda_f1                                           # Prints 0.896
 
 lda_model
 
-# Add LDA metrics to metrics df
-LDA_metrics <- c("LDA", lda_train_score, "n/a", lda_f1, lda_precision, lda_recall)
-metrics_df <- rbind(LDA_metrics)
+predmodel_train_lda
 
+# Save LD1
+lda_train$LD1 <- predmodel_train_lda$x[,1]
 
-#lda_plot <- as(cbind(lda_train$y, lda_model$LD1)
-ggplot(lda_plot, aes(LD1))
+# Save LDA performance metrics
+#LDA_metrics <- c("LDA", lda_train_score, "n/a", lda_f1, lda_precision, lda_recall)
+#LDA_metrics
+
+# Histogram of response classes
+# x-axis is line of co-efficient, LD1
+# y-axis is percent classified
+lda_train_hist <- ggplot() +
+                    geom_histogram(position="identity",
+                                   aes(x=LD1, y=stat(density), fill=class),
+                                       bins=30, data=lda_train) +
+                    facet_grid(rows=vars(class)) +
+                    ggtitle("Linear Discriminant Values by Predicted Class",
+                            subtitle="Class 0 = Not Analytical\nClass 1 = Analytical") 
+                    
+
+png("plots/lda_train_hist.png")
+lda_train_hist
+dev.off()
+
+# Plot of response classes vs LD1
+# x-axis is LD1
+# y-axis is the predicted class value
+# can see the incorrect classifications
+lda_train_plot <- ggplot(lda_train, aes(x=LD1, y)) +
+                  geom_point(aes(col=class)) +
+                  ggtitle("Linear Discriminant Analysis Training Response Classes",
+                          subtitle="Predicted Class 0 = Not Analytical\nPredicted Class 1 = Analytical") +
+                  xlab("LD1") +
+                  ylab("Predicted Classification") +
+                  labs(color="Actual\nClass")
+
+png("plots/lda_train_plot.png")
+lda_train_plot
+dev.off()
+
+# Scatter plot of actual Analytical Importance
+# x-axis is LD1
+# y-axis is actual Analytical.IM
+# class values are predicted values
+lda_train_scatter <- ggplot(lda_train, aes(LD1, Analytical.IM, col=class)) +
+                      geom_point() +
+                      ggtitle("Linear Discriminant Analysis Training Model",
+                              subtitle="Predicted Class 0 = Not Analytical\nPredicted Class 1 = Analytical") +
+                      xlab("Linear Discriminant 1") +
+                      ylab("Actual Analytical Importance") +
+                      labs(color="Actual\nClass")
+                                   
+png("plots/lda_train_scatter.png")
+lda_train_scatter
+dev.off()  
 
 
 ########
@@ -985,13 +1080,15 @@ qda_model <- qda(y ~ Category.Flexibility + Deductive.Reasoning +
                  data=qda_train)
     
 # Training data predictions
-predmodel.train.qda <- predict(qda_model, newdata=qda_train)
+predmodel_train_qda <- predict(qda_model, newdata=qda_train)
+
+predmodel_train_qda
 
 # Save labels
-qda_train$class <- predmodel.train.qda$class
+qda_train$class <- predmodel_train_qda$class
 
 # Check accuracy
-qda_train_score <- check_accuracy(qda_train)   
+qda_train_score <- check_accuracy(qda_train$y, qda_train$class)   
 qda_train_score                                   #Prints 0.8938053
 
 # Create confusion matrix
@@ -1017,31 +1114,67 @@ qda_f1                                           # Prints 0.898051
 
 qda_model
 
+qda_train$posterior_0 <- predmodel_train_qda$posterior[,1]
+qda_train$posterior_1 <- predmodel_train_qda$posterior[,2]
+
+# Plot of response classes v posterior_1
+# x-axis is posterior 1
+# y-axis is the predicted class value
+# can see the incorrect classifications
+# Cast y values as factors for color by y in plot
+qda_train$y <- factor(qda_train$y)
+qda_train_plot <- ggplot(qda_train, aes(x=posterior_1, y=class, color=y)) +
+                    geom_point() +
+                    ggtitle("Quadratic Discriminant Analysis Training Response Classes",
+                            subtitle="Predicted Class 0 = Not Analytical\nPredicted Class 1 = Analytical") +
+                    xlab("Posterior 1") +
+                    ylab("Predicted Classification") +
+                    scale_y_discrete(expand=c(0.07, 0), limits = c("0", "1")) +
+                    labs(color="Actual\nClass")
+                    
+png("plots/qda_train_plot.png")
+qda_train_plot
+dev.off()
+
 
 ########
 ########  Compare Training Results & Run Chosen Model on Test Data  ############
 ########
 
+
 # Save training scores
-train_scores <- c(logit_train_score, lda_train_score, qda_train_score)
-models <- c("Logit", "LDA", "QDA")
-train_scores_ma <- cbind(models, train_scores)
-train_scores_df <- data.frame(train_scores_ma)
+train_scores <- c(logit_train_score_16,
+                  lda_train_score,
+                  qda_train_score)
+models <- c("Logit 16", "LDA", "QDA")
+train_scores_mat <- cbind(models, train_scores)
+train_scores_df <- data.frame(train_scores_mat)
 colnames(train_scores_df) <- c("Model", "Accuracy")
+train_scores_df
 
 # Combine precision, recall, f1 scores
-precisions <- c(logit_precision, lda_precision, qda_precision)
-recalls <- c(logit_recall, lda_recall, qda_recall)
-f1s <- c(logit_f1, lda_f1, qda_f1)
+precisions <- c(logit_precision_16, lda_precision, qda_precision)
+recalls <- c(logit_recall_16, lda_recall, qda_recall)
+f1s <- c(logit_f1_16, lda_f1, qda_f1)
 train_scores_df$Precision <- precisions
 train_scores_df$Recall <- recalls
 train_scores_df$F1 <- f1s
 
 train_scores_df
+
+# Save model metrics as png
+png("plots/model_train_metrics.png", height=40*nrow(train_scores_df),
+    width=90*ncol(train_scores_df))
+grid.table(train_scores_df)
+dev.off()
+
 #   Model          Accuracy Precision    Recall        F1
 # 1 Logit 0.862222222222222 0.8559322 0.8782609 0.8669528
 # 2   LDA 0.884444444444444 0.8960000 0.8960000 0.8960000
 # 3   QDA 0.893805309734513 0.8760331 0.9217391 0.8983051
+
+
+# Run LDA on test data
 
 # Discretize lda model target data
 # Use median as cutoff
@@ -1050,17 +1183,17 @@ test_y_cutoff <- median(test$Analytical.IM)
 test$y <- sapply(test$Analytical.IM, 
                       function(x) is_analytical(x, test_y_cutoff))
 
-# Run QDA on the test data set
-predmodel.test.lda <- predict(lda_model, newdata=test)
-
+# Run LDA on the test data set
+predmodel_test_lda <- predict(lda_model, newdata=test)
+predmodel_test_lda
 # Save labels
-test$class <- predmodel.test.lda$class
+test$class <- predmodel_test_lda$class
 
 # Print output               #  0   1 
 table(test$class)            # 120 171
 
 # Check accuracy
-lda_test_score <- check_accuracy(test)         # Prints 0.8178694
+lda_test_score <- check_accuracy(test$y, test$class)         # Prints 0.8178694
 lda_test_score
 
 # Create confusion matrix
@@ -1084,41 +1217,20 @@ test_recall                                       # Prints 0.9041096
 test_f1 <- calc_f1(test_precision, test_recall)
 test_f1                                           # Prints 0.8328076
 
-# TODO: Print the most, least, average, and median analytical occupations
+# Save model metrics for test data
+model <- "LDA"
+test_metrics_mat <- cbind(model, lda_test_score, test_precision, test_recall, test_f1)
+test_metrics_df <- data.frame(test_metrics_mat)
+colnames(test_metrics_df) <- c("Model", "Accuracy", "Precision", "Recall", "F1")
+test_metrics_df
 
-# Run QDA on the test data set
-predmodel.test.logint <- predict(logit_model, newdata=test)
+# Save model metrics as png
+png("plots/test_metrics.png", height=50*nrow(test_metrics_df),
+    width=120*ncol(test_metrics_df))
+grid.table(test_metrics_df)
+dev.off()
 
-# Save labels
-test$class <- predmodel.test.logit$class
 
-# Print output               #  0   1 
-table(test$class)            # 120 171
-
-# Check accuracy
-logit_test_score <- check_accuracy(test)         # Prints 0.8178694
-logit_test_score
-
-# Create confusion matrix
-test_cm <- table(test$y, test$class)
-test_cm
-
-# Calculate true positive, false positive, and false negative
-test_tp <- test_cm[2, 2]      #     0   1
-test_fp <- test_cm[1, 2]      # 0 106  39
-test_fn <- test_cm[2, 1]      # 1  14 132
-
-# Calculate precision
-test_precision <- test_tp / (test_tp + test_fp)
-test_precision                                    # Prints 0.7719298
-
-# Calculate recall
-test_recall <- test_tp / (test_tp + test_fn)
-test_recall                                       # Prints 0.9041096
-
-# Calculate F1
-test_f1 <- calc_f1(test_precision, test_recall)
-test_f1                       
 
 
 
