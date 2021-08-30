@@ -254,21 +254,24 @@ logit_train$yhat <- fitted(logit_model)
 # Plot distribution of the output
 logit_train_yhat_hist <-
           ggplot(logit_train, aes(x=yhat), title="Distribution") +
-          theme_classic() +
-          geom_histogram(color="black", fill="#737CA1", bins=70) +
-          labs(title="Distribution of Predicted Probabilities",
-               subtitle="Logistic Regression Training Data") +
-          labs(x="Occupation", y="Count") +
-          geom_vline(aes(xintercept=mean(yhat),
-                 color="Mean"),
-             linetype="dashed", size=0.75) +
-         geom_vline(aes(xintercept=median(yhat),
-                 color="Median"), 
-             linetype="dotdash", size=0.75) +
-          scale_color_manual(name="Statistics",
-                     values=c(Mean="#6CC417", Median="#F88017"))
+            theme_classic() +
+            geom_histogram(color="black", fill="#737CA1", bins=70) +
+            labs(title="Distribution of Predicted Probabilities",
+                 subtitle="Logistic Regression Training Data") +
+            labs(x="Occupation", y="Count") +
+            geom_vline(aes(xintercept=mean(yhat),
+                   color="Mean"),
+               linetype="dashed", size=0.75) +
+           geom_vline(aes(xintercept=median(yhat),
+                   color="Median"), 
+               linetype="dotdash", size=0.75) +
+            scale_color_manual(name="Statistics",
+                       values=c(Mean="#6CC417", Median="#F88017"))
 
+# Save plot
+png("plots/logit_train_yhat.png")
 logit_train_yhat_hist
+dev.off()
 
 # Discretize output for class
 # Use not analytical < 0.5 >= analytical
