@@ -36,8 +36,7 @@ using occupational skill sets and attributes described by 0*NET as inputs.
 
 The dependent variable is binary. Either the occupation is or it is not
 analytical. An occupation is considered to be analytical if its Analytical
-Importance is equal to or greater than 0.50. Otherwise, it is considered to be
-not analytical.
+Importance is equal to or greater than 0.50. Otherwise, it is considered to be not analytical.
 
 The feature set includes: Category Flexibility, Deductive Reasoning, Flexibility of Closure, Fluency of Ideas, Inductive Reasoning, Information Ordering, Mathematical Reasoning, Memorization, Number Facility, Oral Comprehension, Oral Expression, Originality, Perceptual Speed, Problem Sensitivity, Selective Attention, Spatial Orientation, Speed of Closure, Time Sharing, Visualization, Written Comprehension, and Written Expression.
 
@@ -45,57 +44,55 @@ Three models are implemented: Logistic Regression, Linear Discriminant Analysis,
 
 ## Training Models Results
 ### Logistic Regression
-The logistic regression with all of the features included resulted in an AIC of
-195.38 and an accuracy of 0.8622. Precision and recall are 0.8559 and 0.8783,
-respectively. And, the F1 is 0.8670. Unfortunately, only Inductive Reasoning
-and Spatial Orientation are statistically signifcant.
+The logistic regression with all of the features included resulted in an AIC of 195.38 and an accuracy of 0.8622. Precision and recall are 0.8559 and 0.8783, respectively. And, the F1 is 0.8670. Unfortunately, only Inductive Reasoning and Spatial Orientation are statistically signifcant.
 
 Below is a plot of the probabilities predicted by the model. Predicted probabilities are plotted against the index of observations ordered by the respective predicted probabilities. Each data point has been colored by its actual classification.
 
 ![Logit Model: All Features](plots/logit_gg.png)
 
-Beginning with the model above, new logistic regression models were created by
-removing the feature with the lowest statistical significance as measured by
-its p-value. This process, known as Backwards Stepwise Logistic Regression, was
-repeated 18 times until all remaining features were significant at the 99.0
-percent level. The three most promising of those models are described below.
+Beginning with the model above, new logistic regression models were created by removing the feature with the lowest statistical significance as measured by its p-value. This process, known as Backwards Stepwise Logistic Regression, was repeated 18 times until all remaining features were significant at the 99.0 percent level.
+
+Below is a plot of the distribution of the predicted probabilities. Both the mean and the median are displayed. This is a great way to visualize the separability of the two predicted classes.
+
+![Logit Model Distribution Predicted Probabilities](plots/logit_train_yhat.png)
+
+Performance metrics for the three most promising logistic regression models are described below.
 
 ![Logit Model Metrics](plots/logit_metrics.png)
+
+TODO: Create predicted probability distributions for Logit Models 16-18 and stack them. Display. Discuss.
 
 As a reminder, precision is the ratio of occupations correctly predicted to be analytical versus all occupations that are predicted to be analytical. It is the number of occupations correctly predicted to be analytical divided by the total number of occupations predicted to be analytical. A high precision should yield a low false positive rate.
 
 Recall is the ratio of all correctly predicted occupations divided by the number of occupations that are actually analytical. It reflects a model's ability to correctly identify analytical occupations among all occupations that are actually analytical.
 
-The F1 score is an equally weighted average of precision and recall. It balances precision and recal by taking both false positives and false negatives into account. 
+The F1 score is an equally weighted average of precision and recall. It balances precision and recal by taking both false positives and false negatives into account.
 
 AIC is a metric which assesses a model's ability to fit to the data and which penalizes models for including a greater number of parameters.
 
 Model 16 is the first model where all features are statistically significant. It has an AIC of 177.16 and an accuracy of 0.8311. Each feature is statistically significant at the 95.0 percent level or greater. Problem Sensitivity, Visualization, and Spatial Orientation are significant at the 95.0 percent level. Mathematical Reasoning is significant at the 99.0 percent level. And, Written Expression is significant at the 99.9 percent level.
 
-Model 17 has the same performance metrics except for the AIC which is 181.01. 
-Each feature is significant at the 95.0 percent level or greater. Spatial
-Orientation is significant at the 95.0 percent level. Mathematical Reasoning is
-significant at the 99.0 percent level. And, Problem Sensitivity and Written
-Expression are significant at the 99.9 percent level.
+Model 17 has the same performance metrics except for the AIC which is 181.01. Each feature is significant at the 95.0 percent level or greater. Spatial Orientation is significant at the 95.0 percent level.   Mathematical Reasoning is significant at the 99.0 percent level. And, Problem Sensitivity and Written Expression are significant at the 99.9 percent level.
 
 Model 18 has an AIC of 183.29 and an accuracy of 0.8400. Each feature is
-statistically significant at the 99.0 percent level or greater. Mathematical
-Reasoning and Problem Sensitivity are significant at the 99.0 percent level. And, Written Expression is significant at the 99.9 percent level.
+statistically significant at the 99.0 percent level or greater. Mathematical Reasoning and Problem Sensitivity are significant at the 99.0 percent level. And, Written Expression is significant at the 99.9 percent level.
 
 Among Model 16 and Model 17, there is no difference in accuracy, F1, precision, or recall. The AIC for Model 16 is lower than that of Model 17 making Model 16 the preferred specification between the two.
 
-Model 18 increases in accuracy, precision, recall, and F1 over Model 16. However, it has an AIC which is more than 5 points higher than that of Model 16. And, this is despite the fact that it has fewer parameters. Here, sacraficing a small amount of accuracy for the possibility of future shifts in occupational requirements makes sense. And, for these reasons, Model 16 is the preferred specification. Below is a plot of the probabilities predicted by Model 16 plotted against the index of observations ordered by the predicted proababilities. Each data point has been colored by its actual classification.
+Model 18 increases in accuracy, precision, recall, and F1 over Model 16. However, it has an AIC which is more than 5 points higher than that of Model 16. And, this is despite the fact that it has fewer parameters. Here, sacraficing a small amount of accuracy for the possibility of future shifts in occupational requirements makes sense. Including one or more of the previous variables that have been taken out will, hopefully allow the model to do just that. And, for these reasons, Model 16 is the preferred specification. Below is a plot of the probabilities predicted by Model 16 plotted against the index of observations ordered by the predicted proababilities. Each data point has been colored by its actual classification.
 
 ![Logit Model 16](plots/logit_16_gg.png)
 
 ### Linear Discriminant Analysis
-The LDA model has an accuracy of 0.8844. And, it has a precision, recall, and F1 of 0.8960, 0.8960, and 0.8960, respectively.
+The LDA model has an accuracy of 0.8844. And, it has a precision, recall, and F1 of 0.8960, 0.8960, and 0.8960, respectively. Below are the two predicted class distributions. Again, 0 is not analyticl, and 1 is analytical.
 
 ![LDA Classification Distribution](plots/lda_train_hist.png)
 
 Below is a plot of the classifications predicted by the LDA model. Each point is colored based on its actual classification allowing us to visualize correct and incorrect classification.
 
 ![LDA Classification Plot](plots/lda_train_plot.png)
+
+TODO: Create and place LDA scatter plot of the two most significant features colored by class here. Discuss.
 
 ### Quadratic Discriminant Analysis
 The QDA model has an accuracy of 0.8844. And, it has a precision, recall, and F1 of 0.8760, 0.9217, and 0.8981, respectively.
@@ -104,16 +101,17 @@ Below is a plot of the classifications predicted by the QDA model. Each point is
 
 ![QDA Classification Plot](plots/qda_train_plot.png)
 
-Below are the performance metrics for the preferred logistic regression, LDA,
-and QDA models. The accuracies are 0.884 and 0.894 for the LDA and QDA models, respectively. Compared to 0.831 for the logistic regression, each performs significantly better. They, also offer increased precision, recall, and F1 scores. Precisions are 0.818 for the logistic regression, 0.896 for the LDA model, and 0.876 for the QDA model. Recalls are 0.861, 0.896, and 0.922 for the logistic regression, the LDA model, and the QDA model, respectively. F1 scores are 0.839 for the logistic regression, and 0.896 and 0.898 for the LDA and QDA models, respectively.
+Below are the performance metrics for the preferred logistic regression, LDA, and QDA models. The accuracies are 0.884 and 0.894 for the LDA and QDA models, respectively. Compared to 0.831 for the logistic regression, each performs significantly better. They, also offer increased precision, recall, and F1 scores. Precisions are 0.818 for the logistic regression, 0.896 for the LDA model, and 0.876 for the QDA model. Recalls are 0.861, 0.896, and 0.922 for the logistic regression, the LDA model, and the QDA model, respectively. F1 scores are 0.839 for the logistic regression, and 0.896 and 0.898 for the LDA and QDA models, respectively.
 
 ![Model Comparison](plots/model_train_metrics.png)
+
+TODO: Create and place QDA scatter plot of the two most significant features colored by class here. Discuss.
 
 If there was a higher cost associated with false positives, the LDA model would be preferred. It has a higher precision than QDA and logistic regression models.
 
 That said, if there was a high cost associated with false negaitves, the QDA model would be preferable. It has a significantly higher recall than the LDA and logistic regression models.
 
-In this scenario, I am primarily concerned with accuracy and explainability. The LDA model is nearly accurate as the QDA model. And, it is much easier to explain both technically and visually. And, for these reasons, the LDA model is preferred over the logistic regression and the QDA model.
+In this scenario, I am primarily concerned with accuracy and explainability. The LDA model is nearly as accurate as the QDA model. And, it is much easier to explain both technically and visually. And, for these reasons, the LDA model is preferred over the logistic regression and the QDA model.
 
 LDA assumes Gaussian class-conditional distributions and variance-covariance homogeneity of classes. The decision boundary is the set of points for which being analytical is equal to that of not being analytical (log-odds are zero). In other words, it is the combination of the independent variables that best separates the classes.
 
@@ -122,9 +120,16 @@ Running the preferred model on the test data resulted in and accuracy of 0.818, 
 
 ![Test Model Metrics](plots/test_metrics.png)
 
+<!-- TODO: Create plot of Predicted class v. Posterior 1 colored by class for preferred model here. Discuss. -->
+
+<!--TODO: Create and place scatter plot of the two most significant features of preferred model colored by class here. Discuss. -->
+
+<!-- TODO: Create and place distribtion plot that shows separation for preferred spec here. Discuss. -->
+
 In the future:
 * Instead of removing features based on significance alone, feature selection using VIF would reduce multicollinearity among independent variables.
 * Explore decision trees.
+* Perform multiclass classification that includes the importance for other characteristics.
 
 
 ## License
