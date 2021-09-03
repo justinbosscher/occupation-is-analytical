@@ -66,16 +66,26 @@ As a reminder, precision is the ratio of occupations correctly predicted to be a
 
 Recall is the ratio of all correctly predicted occupations divided by the number of occupations that are actually analytical. It reflects a model's ability to correctly identify analytical occupations among all occupations that are actually analytical.
 
-The F1 score is an equally weighted average of precision and recall. It balances precision and recal by taking both false positives and false negatives into account.
+The F1 score is an equally weighted average of precision and recall. It balances precision and recall by taking both false positives and false negatives into account.
 
 AIC is a metric which assesses a model's ability to fit to the data and which penalizes models for including a greater number of parameters.
 
-Model 16 is the first model where all features are statistically significant. It has an AIC of 177.16 and an accuracy of 0.8311. Each feature is statistically significant at the 95.0 percent level or greater. Problem Sensitivity, Visualization, and Spatial Orientation are significant at the 95.0 percent level. Mathematical Reasoning is significant at the 99.0 percent level. And, Written Expression is significant at the 99.9 percent level.
+Model 16 is the first model where all features are statistically significant. It has an AIC of 177.16 and an accuracy of 0.8311. Each feature is statistically significant at the 95.0 percent level or greater. Problem Sensitivity, Visualization, and Spatial Orientation are significant at the 95.0 percent level. Mathematical Reasoning is significant at the 99.0 percent level. And, Written Expression is significant at the 99.9 percent level. A plot of the distribution of its predicted probabilities is below.
 
-Model 17 has the same performance metrics except for the AIC which is 181.01. Each feature is significant at the 95.0 percent level or greater. Spatial Orientation is significant at the 95.0 percent level.   Mathematical Reasoning is significant at the 99.0 percent level. And, Problem Sensitivity and Written Expression are significant at the 99.9 percent level.
+![Logit 16 Predicted Distribution](plots/logit_16_train_dist.png)
+
+Below is a plot of the correlations between the features in the logistic regession Model 16.
+
+![Logit 16 Corr Plot](plots/logit_16_corr_plot.png)
+
+Model 17 has the same performance metrics except for the AIC which is 181.01. Each feature is significant at the 95.0 percent level or greater. Spatial Orientation is significant at the 95.0 percent level.   Mathematical Reasoning is significant at the 99.0 percent level. And, Problem Sensitivity and Written Expression are significant at the 99.9 percent level. Below is a plot of the distribution of the probabilities predicted by Model 17.
+
+![Logit 17 Predicted Distribution](plots/logit_17_train_dist.png)
 
 Model 18 has an AIC of 183.29 and an accuracy of 0.8400. Each feature is
-statistically significant at the 99.0 percent level or greater. Mathematical Reasoning and Problem Sensitivity are significant at the 99.0 percent level. And, Written Expression is significant at the 99.9 percent level.
+statistically significant at the 99.0 percent level or greater. Mathematical Reasoning and Problem Sensitivity are significant at the 99.0 percent level. And, Written Expression is significant at the 99.9 percent level. A plot of the distribution of predicted probabilities from Model 18 is below.
+
+![Logit 18 Predicted Distribution](plots/logit_18_train_dist.png)
 
 Among Model 16 and Model 17, there is no difference in accuracy, F1, precision, or recall. The AIC for Model 16 is lower than that of Model 17 making Model 16 the preferred specification between the two.
 
