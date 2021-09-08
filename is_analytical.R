@@ -610,7 +610,7 @@ logit_train_yhat_16_hist <-
                   theme_classic() +
                   geom_histogram(color="black", fill="#737CA1", bins=70) +
                   labs(title="Distribution of Predicted Probabilities",
-                       subtitle="Logistic Regression Training Data") +
+                       subtitle="Model 16 Logistic Regression Training Data") +
                   labs(x="Occupation", y="Count") +
                   geom_vline(aes(xintercept=mean(yhat_16),
                                  color="Mean"),
@@ -621,7 +621,10 @@ logit_train_yhat_16_hist <-
                   scale_color_manual(name="Statistics",
                                      values=c(Mean="#6CC417", Median="#F88017"))
 
+# Save plot
+png("plots/logit_16_train_dist.png")
 logit_train_yhat_16_hist
+dev.off()
 
 # Discretize output for class
 # Use not analytical < 0.5 >= analytical
@@ -694,7 +697,7 @@ logit_train_yhat_17_hist <-
                   theme_classic() +
                   geom_histogram(color="black", fill="#737CA1", bins=70) +
                   labs(title="Distribution of Predicted Probabilities",
-                       subtitle="Logistic Regression Training Data") +
+                       subtitle="Model 17 Logistic Regression Training Data") +
                   labs(x="Occupation", y="Count") +
                   geom_vline(aes(xintercept=mean(yhat_17),
                                  color="Mean"),
@@ -705,7 +708,10 @@ logit_train_yhat_17_hist <-
                   scale_color_manual(name="Statistics",
                                      values=c(Mean="#6CC417", Median="#F88017"))
 
+# Save plot
+png("plots/logit_17_train_dist.png")
 logit_train_yhat_17_hist
+dev.off()
 
 # Discretize output for class
 # Use not analytical < 0.5 >= analytical
@@ -777,7 +783,7 @@ logit_train_yhat_18_hist <-
                 theme_classic() +
                 geom_histogram(color="black", fill="#737CA1", bins=70) +
                 labs(title="Distribution of Predicted Probabilities",
-                     subtitle="Logistic Regression Training Data") +
+                     subtitle="Model 18 Logistic Regression Training Data") +
                 labs(x="Occupation", y="Count") +
                 geom_vline(aes(xintercept=mean(yhat_18),
                                color="Mean"),
@@ -788,7 +794,10 @@ logit_train_yhat_18_hist <-
                 scale_color_manual(name="Statistics",
                                    values=c(Mean="#6CC417", Median="#F88017"))
 
+# Save plot
+png("plots/logit_18_train_dist.png")
 logit_train_yhat_18_hist
+dev.off()
 
 # Discretize output for class
 # Use not analytical < 0.5 >= analytical
@@ -896,13 +905,9 @@ vars_16_names <- c("Mathematical\nReasoning", "Problem\nSensitivity",
                    "Spatial\nOrientation", "Visualization")
 names(vars_16) <- vars_16_names
 
-cor_16 = cor(vars_16)
-logit_corr_plot <- corrplot.mixed(cor_16, number.cex=1.1, tl.cex=0.9, mar=c(0,0,1,0))
-
-# Save correlation plot
-png("plots/logit_corr_plot.png")
-logit_corr_plot
-dev.off()
+cor_16 -> cor(vars_16)
+logit_16_corr_plot <- corrplot.mixed(cor_16, number.cex=1.1, tl.cex=0.9, mar=c(0,0,1,0))
+# Saved correlation plot manually with Export button
 
 # Logit Model 16
 omcdiag(logit_model_16)
@@ -945,7 +950,7 @@ pcor(vars_18, method="Pearson")
 lda_train_y_cutoff <- median(logit_train$Analytical.IM)
 
 lda_train$y <- as.integer(sapply(lda_train$Analytical.IM, 
-                        function(x) is_analytical(x, lda_train_y_cutoff)))
+                          function(x) is_analytical(x, lda_train_y_cutoff)))
 
 table(lda_train$y)        # 0: 100, 1: 125
 
@@ -965,6 +970,7 @@ lda_model <- lda(y ~ Category.Flexibility + Deductive.Reasoning +
 
 # Training data predictions
 predmodel_train_lda <- predict(lda_model, data=lda_train)
+predmodel_train_lda
 
 # Save output
 lda_train$class <- predmodel_train_lda$class
@@ -982,7 +988,6 @@ lda_tp <- lda_cm[2, 2]              #     0   1
 lda_fp <- lda_cm[1, 2]              # 0  87  13
 lda_fn <- lda_cm[2, 1]              # 1  13 112                              
                                   
-
 # Calculate precision
 lda_precision <- lda_tp / (lda_tp + lda_fp)
 lda_precision                                    # Prints 0.896
@@ -1017,22 +1022,22 @@ lda_train_hist <- ggplot() +
                     ggtitle("Linear Discriminant Values by Predicted Class",
                             subtitle="Class 0 = Not Analytical\nClass 1 = Analytical") 
                     
-
 png("plots/lda_train_hist.png")
 lda_train_hist
 dev.off()
 
-# Plot of response classes vs LD1
+#TODO: Find 2 most significant features and plot them 
+# Plot of two most significant features
 # x-axis is LD1
 # y-axis is the predicted class value
 # can see the incorrect classifications
 lda_train_plot <- ggplot(lda_train, aes(x=LD1, y)) +
-                  geom_point(aes(col=class)) +
-                  ggtitle("Linear Discriminant Analysis Training Response Classes",
-                          subtitle="Predicted Class 0 = Not Analytical\nPredicted Class 1 = Analytical") +
-                  xlab("LD1") +
-                  ylab("Predicted Classification") +
-                  labs(color="Actual\nClass")
+                    geom_point(aes(col=class)) +
+                    ggtitle("Linear Discriminant Analysis Training Response Classes",
+                            subtitle="Predicted Class 0 = Not Analytical\nPredicted Class 1 = Analytical") +
+                    xlab("LD1") +
+                    ylab("Predicted Classification") +
+                    labs(color="Actual\nClass")
 
 png("plots/lda_train_plot.png")
 lda_train_plot
@@ -1043,16 +1048,28 @@ dev.off()
 # y-axis is actual Analytical.IM
 # class values are predicted values
 lda_train_scatter <- ggplot(lda_train, aes(LD1, Analytical.IM, col=class)) +
-                      geom_point() +
-                      ggtitle("Linear Discriminant Analysis Training Model",
-                              subtitle="Predicted Class 0 = Not Analytical\nPredicted Class 1 = Analytical") +
-                      xlab("Linear Discriminant 1") +
-                      ylab("Actual Analytical Importance") +
-                      labs(color="Actual\nClass")
-                                   
+                        geom_point() +
+                        ggtitle("Linear Discriminant Analysis Training Model",
+                                subtitle="Predicted Class 0 = Not Analytical\nPredicted Class 1 = Analytical") +
+                        xlab("Linear Discriminant 1") +
+                        ylab("Actual Analytical Importance") +
+                        labs(color="Actual\nClass")
+
 png("plots/lda_train_scatter.png")
 lda_train_scatter
 dev.off()  
+
+lda_train_scatter <- ggplot(lda_train, aes(LD1, Analytical.IM, col=class)) +
+  geom_point() +
+  ggtitle("Linear Discriminant Analysis Training Model",
+          subtitle="Predicted Class 0 = Not Analytical\nPredicted Class 1 = Analytical") +
+  xlab("Linear Discriminant 1") +
+  ylab("Actual Analytical Importance") +
+  labs(color="Actual\nClass")
+
+png("plots/lda_train_scatter_sig_feats.png")
+lda_train_scatter_sig_feats
+dev.off()
 
 
 ########
